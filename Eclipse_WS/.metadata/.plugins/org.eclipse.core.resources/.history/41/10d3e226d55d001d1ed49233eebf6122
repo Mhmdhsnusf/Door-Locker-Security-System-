@@ -1,0 +1,91 @@
+/******************************************************************************
+ *
+ * Module: Buzzer
+ *
+ * File Name: buzzer.h
+ *
+ * Description: header file for the buzzer driver
+ *
+ * Author: Mohamed Hassan
+ *
+ *******************************************************************************/
+
+#ifndef CONTROL_ECU_H_
+#define CONTROL_ECU_H_
+
+#include "std_types.h"
+
+/*******************************************************************************
+ *                                Definitions                                  *
+ *******************************************************************************/
+#define PASSWORD_SIZE 5
+#define MATCHED 0x01
+#define UN_MATCHED 0x00
+#define DUMMY_BYTE 0xFF
+
+/*******************************************************************************
+ *                      Functions Prototypes                                   *
+ *******************************************************************************/
+
+/*
+ * Description :
+ * Functional responsible for :
+ * Receiving Password entered by the user from HMI_ECU
+ */
+void receive_Password();
+
+/*
+ * Description :
+ * Functional responsible for :
+ * 1. Taking two passwords (entered/re-entered) entered by the user and sent through Receive_password function
+ * 2. Check if both are the same
+ * 3. return if they are matched or not
+ */
+uint8 check_Password(uint8 *Password_array1,uint8 *Password_array2);
+
+/*
+ * Description :
+ * Functional responsible for :
+ * Saving the password passed to it in the EEPROM
+ */
+void save_Password(uint8 *Password_array);
+
+/*
+ * Description :
+ * Functional responsible for :
+ * Syncing the UART in the Control_ECU and the UART in HMI_ECU
+ * Receiving data from the UART in the HMI_ECU
+ */
+uint8 recieveByte(void);
+/*
+ * Description :
+ * Functional responsible for :
+ * Syncing the UART in the Control_ECU and the UART in HMI_ECU
+ * Sending data to the UART in the HMI_ECU
+ */
+void sendByte(uint8 byte);
+/*
+ * Description :
+ * Functional responsible for :
+ * Comparing the password entered by the user with the password saved in the EEPROM (Entered by the user before)
+ */
+uint8 Compare_with_saved_password(uint8*Password_array1,uint8*Password_array2);
+
+/*
+ * Description :
+ * Function called when by the ISR when the overflow interrupt take place
+ */
+void motorTime(void);
+/*
+ * Description :
+ * Function called when by the ISR when the overflow interrupt take place
+ */
+void buzzerTime(void);
+#endif
+
+
+
+
+
+
+void timer1_SetRequiredCallBack(uint8 device);

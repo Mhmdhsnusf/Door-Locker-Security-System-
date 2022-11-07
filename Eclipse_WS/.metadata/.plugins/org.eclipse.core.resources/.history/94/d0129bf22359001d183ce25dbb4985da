@@ -1,0 +1,27 @@
+ /******************************************************************************
+ *
+ * Module: HMI_ECU (Human Machine Interface))
+ *
+ * File Name: HMI_ECU.h
+ *
+ * Description: Header file for the HMI_ECU Driver
+ *
+ * Author: Mohamed Hassan
+ *
+ *******************************************************************************/
+#include"std_types.h"
+#define PASSWORD_SIZE 5
+#define MATCHED 0x01
+#define UN_MATCHED 0x00
+/*******************************************************************************
+ *                      Functions Prototypes                                 *
+ *******************************************************************************/
+void Init_function(void);
+void Create_send_check_password();
+void Create_password();
+uint8 Check_password();
+void Send_password();
+void Main_options();
+void Change_password();
+void Alert_message();
+void Main_options(void)

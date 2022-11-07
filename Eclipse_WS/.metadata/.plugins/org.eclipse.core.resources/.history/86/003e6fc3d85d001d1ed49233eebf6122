@@ -1,0 +1,335 @@
+/******************************************************************************
+ *
+ * Module: HMI_ECU (Human Machine Interface))
+ *
+ * File Name: HMI_ECU.c
+ *
+ * Description: Source file for the HMI_ECU Driver
+ *
+ * Author: Mohamed Hassan
+ *
+ *******************************************************************************/
+#include "hmi_ecu.h"
+
+#include "gpio.h"
+#include "lcd.h"
+#include "keypad.h"
+#include "common_macros.h"
+#include "uart.h"
+#include<util/delay.h>
+#include "Timer1_driver.h"
+#include <avr/interrupt.h>  /* For enabling I-bit*/
+#define CREATE_PASSWORD 0
+#define CHECKING_PASSWORD_MATCHING 1
+#define MAIN_OPTIONS_DISPLAY 3
+
+/*******************************************************************************
+ *                      Global Variables									   *
+ *******************************************************************************/
+static uint8 g_Pass_array1[5],g_Pass_array2[5]; /*Store password entered by the user*/
+static volatile uint8 g_tick_motor; /* For counting the operation time of LCD when motor operates*/
+static volatile uint8 g_tick_buzzer; /* For counting the operation time of LCD when buzzer operates*/
+uint8 application_sequence_MC1=0; /*Controls HMI_ECU MC application sequence*/
+/*******************************************************************************
+ *                      Main Function                         				   *
+ *******************************************************************************/
+int main(void)
+{
+	LCD_init();
+	UART_ConfigType UART_Config = {8,1,UART_STOP_1BIT_SELECT,9600};/*UART configurations*/
+	UART_init(&UART_Config); /*Initializing UART*/
+	Timer1_ConfigType  Config_Ptr = {0,0,Prescaler_1024,Overflow_Mode};/*Timer1 Configurations*/
+	LCD_clearScreen();
+	LCD_displayStringRowColumn(0,0,"Door Lock System");
+	LCD_displayStringRowColumn(1,0," Mohamed Hassan ");
+	_delay_ms(3000);
+	while(1)
+	{
+		switch(application_sequence_MC1)
+		{
+		case  CREATE_PASSWORD:
+		{
+			Start_function(); /*Starting the program*/
+			Send_password(g_Pass_array1);/*Sending the entered password to Control_ECU*/
+			Send_password(g_Pass_array2);/*Sending the re-entered password to Control_ECU*/
+			application_sequence_MC1++; /* Jump to the next step (Checking Step)*/
+			break;
+
+		}
+		case 1:
+		{
+			/*Check if the Control_ECU returns that the two passwords are matched or not*/
+			if(check_Password()!=MATCHED)
+			{
+				application_sequence_MC1=0; /*if the two passwords are not matched returns to step (Ask for password again)*/
+			}
+			else
+			{
+				application_sequence_MC1+=2; /*Jump to the next step*/
+			}
+			break;
+		}
+		case 3:
+		{
+			uint8 user_choice=Main_options();/*Displaying main options and returns user choice*/
+			if(recieveByte()) /*if the password is matched with the one stored in the EEPROM*/
+			{
+				sendByte(user_choice); /*Sends the user choice to Control_ECU (Open Door/Change password)*/
+				application_sequence_MC1=recieveByte();
+				 /*
+				 * if two passwords are matched the application sequence will receive a 0x04 byte
+				 * so the application will go to the next step where the LCD displays the required messages for motor operations
+				 * else it will receive 0x00 byte which will ask the user to create a new password (Change his old password)
+				 */
+
+			}
+			else
+			{
+				uint8 i;
+				/*
+				 * Ask the user to enter the correct password two more times
+				 * if he entered the correct password then continue the program and execute
+				 * the function which is responsible for the choice he chose (Open Door/Change password)
+				 * else
+				 * Display at the LCD that the system is blocked for 1 min
+				 * After the 1 min ends return to the main options display
+				 */
+				for(i=0;i<2;i++)
+				{
+					LCD_clearScreen();
+					LCD_moveCursor(0, 0);
+					LCD_displayString("Plz enter old ");
+					LCD_moveCursor(1, 0);
+					LCD_displayString("pass:");
+					Create_password(&g_Pass_array1);
+					Send_password(&g_Pass_array1);
+					if(recieveByte()==MATCHED)
+					{
+						application_sequence_MC1=3;
+						break;
+
+					}
+				}
+				if(i==2)
+				{
+					LCD_clearScreen();
+					Timer1_init(&Config_Ptr);/*Initialize Timer 1*/
+					Timer1_setCallBack(LCD_Buzzer_Disply);/*Set Timer 1 callback to LCD_Buzzer_Disply function*/
+					while(g_tick_buzzer != 8)/*Display that the system is blocked for 1 min*/
+					{
+						LCD_displayStringRowColumn(0,0,"BLOCKED 1 MIN");
+
+					}
+					if(g_tick_motor==8)
+					{
+						Timer1_deInit();
+						g_tick_buzzer=0;
+					}
+					/*Return to main options display*/
+					application_sequence_MC1=3;
+
+
+				}
+			}
+
+
+			break;
+		}
+		case 4:
+		{
+
+			Timer1_init(&Config_Ptr);/*Initialize Timer 1*/
+			Timer1_setCallBack(&LCD_Motor_Disply);/*Set Timer 1 callback to LCD_Motor_Disply function*/
+			LCD_clearScreen();
+			while(g_tick_motor < 2)/*Display that the door is unlocking for 15 sec*/
+			{
+				LCD_displayStringRowColumn(0,0," DOOR UNLOCKING ");
+			}
+			if(g_tick_motor == 2)/*Clear the LCD display for 3 sec*/
+			{
+				LCD_clearScreen();
+				Timer1_deInit();
+				_delay_ms(3000);
+				Timer1_init(&Config_Ptr);
+			}
+			while(g_tick_motor>= 2 && g_tick_motor < 4)/*Display that the door is locking for 15 sec*/
+			{
+				LCD_displayStringRowColumn(0,0,"DOOR LOCKING");
+			}
+			if(g_tick_motor==4)
+			{
+				Timer1_deInit();
+				g_tick_motor=0;
+			}
+			application_sequence_MC1=3;/*Return to main options display*/
+			break;
+
+		}
+
+		}
+	}
+
+}
+
+
+/*******************************************************************************
+ *                      Functions Definitions                                  *
+ *******************************************************************************/
+/*
+ * Description :
+ * Functional responsible for :
+ * 1. Displaying enter/re-enter password on LCD
+ * 2. Call create_Password function to take & store password from user
+ */
+void Start_function(void)
+{
+	LCD_clearScreen();
+	LCD_moveCursor(0, 0);
+	LCD_displayString("Plz enter pass: ");
+	LCD_moveCursor(1, 0);
+	Create_password(&g_Pass_array1);
+	LCD_moveCursor(0, 0);
+	LCD_clearScreen();
+	LCD_displayString("Plz re-enter the  ");
+	LCD_moveCursor(1, 0);
+	LCD_displayString("same pass: ");
+	LCD_moveCursor(1, 10);
+	Create_password(&g_Pass_array2);
+}
+/*
+ * Description :
+ * Functional responsible for :
+ * 1. Taking password entered by the user
+ * 2. Storing it in the array passed to it
+ */
+void Create_password(uint8 *Password_array)
+{
+	uint8 counter=0;
+	uint8 pass_byte_holder=KEYPAD_getPressedKey();
+	while(pass_byte_holder != '=')
+	{
+		pass_byte_holder=KEYPAD_getPressedKey();
+		if( ( pass_byte_holder != '+' && pass_byte_holder != '-' && pass_byte_holder != '*' && pass_byte_holder != '%' && pass_byte_holder != '=') || (pass_byte_holder>= 0 && pass_byte_holder<= 9) )
+		{
+			if(counter < PASSWORD_SIZE )
+			{
+				Password_array[counter]=pass_byte_holder;
+				LCD_displayChar('*');
+				counter++;
+			}
+			_delay_ms(1500);
+		}
+	}
+
+}
+/*
+ * Description :
+ * Functional responsible for :
+ * Sending Password entered by the user to Control_ECU through UART
+ */
+void Send_password(uint8 *Password_ptr1)
+{
+	uint8 i;
+	UART_sendByte(READY);
+	while(UART_recieveByte()!=READY);
+	for(i=0;i<PASSWORD_SIZE;i++)
+	{
+		UART_sendByte(Password_ptr1[i]);
+	}
+	while(UART_recieveByte()!=DONE);
+
+}
+/*
+ * Description :
+ * Functional responsible for :
+ * 1. Receiving the result of the two passwords entered by the user (Matched/Not matched)
+ * 2. Return the result
+ */
+uint8 check_Password()
+{
+	uint8 state=-1;
+	state=recieveByte();
+	if(state == UN_MATCHED)
+	{
+		return UN_MATCHED;
+	}
+	else if (state == MATCHED)
+	{
+		return MATCHED;
+	}
+}
+/*
+ * Description :
+ * Functional responsible for :
+ * 1. Displaying the application main options in LCD (Open Door/Change pass)
+ * 2. Get the user choice
+ * 3. Asking the user for entering his old password
+ * 4. Call create_Password function to get and store password entered by the user
+ * 5. Send the password entered by the user to Control_ECU to check if it's the correct passwored
+ *    compared with the one saved in the EEPROM
+ * 6. Return the user choice
+ */
+uint8 Main_options(void)
+{
+	LCD_clearScreen();
+	LCD_displayStringRowColumn(0, 0, "+ : OPEN DOOR");
+	LCD_displayStringRowColumn(1, 0, "- : CHANGE PASS");
+	uint8 user_choice=KEYPAD_getPressedKey();
+	while(user_choice != '+' && user_choice != '-'){};
+	LCD_clearScreen();
+	LCD_moveCursor(0, 0);
+	LCD_displayString("Plz enter old");
+	LCD_moveCursor(1, 0);
+	LCD_displayString("pass :");
+	Create_password(&g_Pass_array1);
+	Send_password(&g_Pass_array1);
+	return user_choice;
+
+}
+/*
+ * Description :
+ * Functional responsible for :
+ * Syncing the UART in the Control_ECU and the UART in HMI_ECU
+ * Receiving data from the UART in the Control_ECU
+ */
+uint8 recieveByte(void)
+{
+	uint8 byte;
+	while(UART_recieveByte() != READY){};
+	UART_sendByte(READY);
+	byte=UART_recieveByte();
+	UART_sendByte(DONE);
+	return byte;
+}
+/*
+ * Description :
+ * Functional responsible for :
+ * Syncing the UART in the Control_ECU and the UART in HMI_ECU
+ * Sending data to the UART in the Control_ECU
+ */
+void sendByte(uint8 byte)
+{
+	UART_sendByte(READY);
+	while(UART_recieveByte() != READY){};
+	UART_sendByte(byte);
+	while(UART_recieveByte() != DONE){};
+
+}
+/*
+ * Description :
+ * Function called when by the ISR when the overflow interrupt take place
+ */
+void LCD_Motor_Disply(void)
+{
+	g_tick_motor++;
+
+}
+/*
+ * Description :
+ * Function called when by the ISR when the overflow interrupt take place
+ */
+void LCD_Buzzer_Disply(void)
+{
+	g_tick_buzzer++;
+}
+

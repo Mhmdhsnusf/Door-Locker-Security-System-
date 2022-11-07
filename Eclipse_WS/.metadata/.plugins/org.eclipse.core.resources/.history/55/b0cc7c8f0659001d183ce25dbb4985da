@@ -1,0 +1,194 @@
+/******************************************************************************
+ *
+ * Module: KEYPAD
+ *
+ * File Name: keypad.c
+ *
+ * Description: Source file for the Keypad driver
+ *
+ * Author: Mohamed Hassan
+ *
+ *******************************************************************************/
+#include "keypad.h"
+#include "gpio.h"
+
+/*******************************************************************************
+ *                      Functions Prototypes(Private)                          *
+ *******************************************************************************/
+#define  STANDARD_KEYPAD
+#ifndef STANDARD_KEYPAD
+
+#if (KEYPAD_NUMBER_OF_COLS  == 3)
+/*
+ * Function responsible for mapping the switch number in the keypad to
+ * its corresponding functional number in the proteus for 4x3 keypad
+ */
+static uint8 KEYPAD_4x3_adjustKeyNumber(uint8 button_number);
+#elif (KEYPAD_NUMBER_OF_COLS == 4)
+/*
+ * Function responsible for mapping the switch number in the keypad to
+ * its corresponding functional number in the proteus for 4x4 keypad
+ */
+static uint8 KEYPAD_4x4_adjustKeyNumber(uint8 button_number);
+#endif
+
+#endif /* STANDARD_KEYPAD */
+
+/*******************************************************************************
+ *                      Functions Definitions                                  *
+ *******************************************************************************/
+
+uint8 KEYPAD_getPressedKey(void){
+	GPIO_setupPinDirection( KEYPAD_ROWS_PORT_ID,  KEYPAD_FIRST_ROW_PIN_ID, PIN_INPUT);
+	GPIO_setupPinDirection( KEYPAD_ROWS_PORT_ID,  KEYPAD_FIRST_ROW_PIN_ID+1, PIN_INPUT);
+	GPIO_setupPinDirection( KEYPAD_ROWS_PORT_ID,  KEYPAD_FIRST_ROW_PIN_ID+2, PIN_INPUT);
+	GPIO_setupPinDirection( KEYPAD_ROWS_PORT_ID,  KEYPAD_FIRST_ROW_PIN_ID+3, PIN_INPUT);
+	GPIO_setupPinDirection( KEYPAD_COLS_PORT_ID,  KEYPAD_FIRST_COL_PIN_ID, PIN_INPUT);
+	GPIO_setupPinDirection( KEYPAD_COLS_PORT_ID,  KEYPAD_FIRST_COL_PIN_ID+1, PIN_INPUT);
+	GPIO_setupPinDirection( KEYPAD_COLS_PORT_ID,  KEYPAD_FIRST_COL_PIN_ID+2, PIN_INPUT);
+#if(NUMBER_OF_COLS==4)
+	GPIO_setupPinDirection(COLS_PORT_ID, FIRST_COL_PIN_ID+3, PIN_INPUT);
+#endif
+	while(1){
+		uint8 row_number,col_number;
+		for(row_number=0;row_number< KEYPAD_NUMBER_OF_ROWS;row_number++) /* loop for rows */
+		{
+			/*
+			 * Each time setup the direction for all keypad port as input pins,
+			 * except this row will be output pin
+			 */
+			GPIO_setupPinDirection( KEYPAD_ROWS_PORT_ID,  KEYPAD_FIRST_ROW_PIN_ID+row_number, PIN_OUTPUT);
+			/* Set/Clear the row output pin */
+			GPIO_writePin( KEYPAD_ROWS_PORT_ID,  KEYPAD_FIRST_ROW_PIN_ID+row_number, KEYPAD_BUTTON_PRESSED);
+			for(col_number=0;col_number< KEYPAD_NUMBER_OF_COLS;col_number++) /* loop for columns */
+			{
+				/* Check if the switch is pressed in this column */
+				if(GPIO_readPin( KEYPAD_COLS_PORT_ID, KEYPAD_FIRST_COL_PIN_ID+col_number)==KEYPAD_BUTTON_PRESSED)
+				{
+#if(KEYPAD_NUMBER_OF_COLS==3)
+	#ifdef STANDARD_KEYPAD
+					return ((row_number*KEYPAD_NUMBER_OF_COLS)+col_number+1);
+	#else
+					return (KEYPAD_4x3_adjustKeyNumber((row_number*KEYPAD_NUMBER_OF_COLS)+col_number+1));
+	#endif
+#elif(KEYPAD_NUMBER_OF_COLS==4)
+	#ifdef STANDARD_KEYPAD
+					return ((row_number*KEYPAD_NUMBER_OF_COLS)+col_number+1);
+	#else
+
+					return (KEYPAD_4x4_adjustKeyNumber((row_number*KEYPAD_NUMBER_OF_COLS)+col_number+1));
+	#endif
+#endif
+				}
+
+			}
+			GPIO_setupPinDirection( KEYPAD_ROWS_PORT_ID,  KEYPAD_FIRST_ROW_PIN_ID+row_number, PIN_INPUT);
+		}
+
+	}
+}
+#ifndef STANDARD_KEYPAD
+#if(KEYPAD_NUMBER_OF_COLS==3)
+/*
+ * Description :
+ * Update the keypad pressed button value with the correct one in keypad 4x3 shape
+ */
+static uint8 KEYPAD_4x3_adjustKeyNumber(uint8 button_number){
+	uint8 current_button=0;
+	switch(button_number){
+	case 10:{
+		current_button = '*';
+		break;
+	}
+	case 12:{
+		current_button = 0;
+		break;
+	}
+	case 13:{
+		current_button = '#';
+		break;
+	}
+	}
+	return current_button;
+
+}
+
+#elif(KEYPAD_NUMBER_OF_COLS==4)
+/*
+ * Description :
+ * Update the keypad pressed button value with the correct one in keypad 4x3 shape
+ */
+static uint8 KEYPAD_4x4_adjustKeyNumber(uint8 button_number){
+	uint8 current_button=0;
+	switch(button_number){
+	case 1:{
+		current_button = 1;
+		break;
+	}
+	case 2:{
+		current_button = 2;
+		break;
+	}
+	case 3:{
+		current_button = 3;
+		break;
+	}
+	case 4:{
+		current_button = '%'; /* ASCII of '%' */
+		break;
+	}
+	case 5:{
+		current_button = 4;
+		break;
+	}
+	case 6:{
+		current_button = 5;
+		break;
+	}
+	case 7:{
+		current_button = 6;
+		break;
+	}
+	case 8:{
+		current_button = '*';  /* ASCII of '*' */
+		break;
+	}
+	case 9:{
+		current_button = 7;
+		break;
+	}
+	case 10:{
+		current_button = 8;
+		break;
+	}
+	case 11:{
+		current_button = 9;
+		break;
+	}
+	case 12:{
+		current_button = '-';  /* ASCII of '-' */
+		break;
+	}
+	case 13:{
+		current_button = 0x0D; /*ASCII of Enter*/
+		break;
+	}
+	case 14:{
+		current_button = 0;
+		break;
+	}
+	case 15:{
+		current_button = '='; /* ASCII of '=' */
+		break;
+	}
+	case 16:{
+		current_button = '+'; /* ASCII of '+' */
+		break;
+	}
+	}
+	return current_button;
+
+}
+#endif
+
+#endif /* STANDARD_KEYPAD */

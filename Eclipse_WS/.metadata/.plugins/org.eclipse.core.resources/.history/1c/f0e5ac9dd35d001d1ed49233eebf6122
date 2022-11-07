@@ -1,0 +1,25 @@
+/******************************************************************************
+ *
+ * Module: Control_ECU
+ *
+ * File Name: Control_ECU.h
+ *
+ * Description: Header file for the Control_ECU Driver
+ *
+ * Author: Mohamed Hassan
+ *
+ *******************************************************************************/
+#define PASSWORD_SIZE 5
+#define MATCHED 0x01
+#define UN_MATCHED 0x00
+#define DUMMY_BYTE 0xFF
+void Recieve_password();
+uint8 Check_password(uint8 *Password_array1,uint8 *Password_array2);
+void Save_password(uint8 *Password_array);
+void Change_password(void);
+uint8 recieveByte(void);
+void sendByte(uint8 byte);
+uint8 Compare_with_saved_password(uint8*Password_array1,uint8*Password_array2);
+void motorTime(void);
+void buzzerTime(void);
+void Timer_Function(uint8 device);

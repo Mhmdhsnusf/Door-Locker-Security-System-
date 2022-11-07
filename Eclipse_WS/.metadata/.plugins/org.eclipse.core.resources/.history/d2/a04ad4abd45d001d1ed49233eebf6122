@@ -1,0 +1,60 @@
+/******************************************************************************
+ *
+ * Module: Buzzer
+ *
+ * File Name: buzzer.h
+ *
+ * Description: header file for the buzzer driver
+ *
+ * Author: Mohamed Hassan
+ *
+ *******************************************************************************/
+
+#ifndef CONTROL_ECU_H_
+#define BUZZER_H_
+
+#include "std_types.h"
+
+/*******************************************************************************
+ *                                Definitions                                  *
+ *******************************************************************************/
+#define PASSWORD_SIZE 5
+#define MATCHED 0x01
+#define UN_MATCHED 0x00
+#define DUMMY_BYTE 0xFF
+
+/*******************************************************************************
+ *                      Functions Prototypes                                   *
+ *******************************************************************************/
+/*
+ * Description :
+ * Functional responsible for assigning buzzer pin as output pin
+ */
+void Buzzer_Init();
+/*
+ * Description :
+ * Functional responsible for turning on the buzzer
+ */
+void Buzzer_on();
+/*
+ * Description :
+ * Functional responsible for turning on the buzzer
+ */
+void Buzzer_off();
+
+#endif
+
+#define PASSWORD_SIZE 5
+#define MATCHED 0x01
+#define UN_MATCHED 0x00
+#define DUMMY_BYTE 0xFF
+void receive_Password();
+uint8 check_Password(uint8 *Password_array1,uint8 *Password_array2);
+void save_Password(uint8 *Password_array);
+void Change_password(void);
+uint8 recieveByte(void);
+void sendByte(uint8 byte);
+uint8 Compare_with_saved_password(uint8*Password_array1,uint8*Password_array2);
+void motorTime(void);
+void buzzerTime(void);
+void timer1_SetRequiredCallBack(uint8 device);

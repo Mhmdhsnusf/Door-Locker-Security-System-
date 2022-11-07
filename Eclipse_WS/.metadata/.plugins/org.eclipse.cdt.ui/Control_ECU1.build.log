@@ -1,0 +1,79 @@
+17:15:42 **** Build of configuration Debug for project Control_ECU1 ****
+make all 
+Building file: ../Control_ECU.c
+Invoking: AVR Compiler
+avr-gcc -Wall -g2 -gstabs -O0 -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -std=gnu99 -funsigned-char -funsigned-bitfields -mmcu=atmega32 -DF_CPU=8000000UL -MMD -MP -MF"Control_ECU.d" -MT"Control_ECU.o" -c -o "Control_ECU.o" "../Control_ECU.c"
+In file included from ../Control_ECU.c:18:
+../gpio.h: In function 'Change_password':
+../gpio.h:44: error: storage class specified for parameter 'GPIO_PinDirectionType'
+../gpio.h:49: error: storage class specified for parameter 'GPIO_PortDirectionType'
+../gpio.h:60: error: expected declaration specifiers or '...' before 'GPIO_PinDirectionType'
+In file included from ../Control_ECU.c:19:
+../twi.h:38: error: storage class specified for parameter 'i2c_prescaler_bits'
+../twi.h:45: error: expected specifier-qualifier-list before 'i2c_prescaler_bits'
+../twi.h:47: error: storage class specified for parameter 'i2c_ConfigType'
+../twi.h:53: warning: type defaults to 'int' in declaration of 'i2c_ConfigType'
+../twi.h:53: error: expected ';', ',' or ')' before '*' token
+In file included from ../Control_ECU.c:20:
+../Timer1_driver.h:30: error: storage class specified for parameter 'Timer1_Mode'
+../Timer1_driver.h:34: error: storage class specified for parameter 'Timer1_Prescaler'
+../Timer1_driver.h:39: error: expected specifier-qualifier-list before 'Timer1_Prescaler'
+../Timer1_driver.h:41: error: storage class specified for parameter 'Timer1_ConfigType'
+../Timer1_driver.h:47: warning: type defaults to 'int' in declaration of 'Timer1_ConfigType'
+../Timer1_driver.h:47: error: expected ';', ',' or ')' before '*' token
+In file included from c:/winavr-20100110/lib/gcc/../../avr/include/inttypes.h:37,
+                 from c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:38,
+                 from ../Control_ECU.c:21:
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:121: error: storage class specified for parameter 'int8_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:122: error: storage class specified for parameter 'uint8_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:123: error: storage class specified for parameter 'int16_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:124: error: storage class specified for parameter 'uint16_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:125: error: storage class specified for parameter 'int32_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:126: error: storage class specified for parameter 'uint32_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:128: error: storage class specified for parameter 'int64_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:129: error: storage class specified for parameter 'uint64_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:142: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'intptr_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:147: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'uintptr_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:159: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'int_least8_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:164: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'uint_least8_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:169: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'int_least16_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:174: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'uint_least16_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:179: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'int_least32_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:184: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'uint_least32_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:192: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'int_least64_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:199: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'uint_least64_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:213: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'int_fast8_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:218: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'uint_fast8_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:223: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'int_fast16_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:228: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'uint_fast16_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:233: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'int_fast32_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:238: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'uint_fast32_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:246: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'int_fast64_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:253: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'uint_fast64_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:273: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'intmax_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/stdint.h:278: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'uintmax_t'
+In file included from c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:38,
+                 from ../Control_ECU.c:21:
+c:/winavr-20100110/lib/gcc/../../avr/include/inttypes.h:77: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'int_farptr_t'
+c:/winavr-20100110/lib/gcc/../../avr/include/inttypes.h:81: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'uint_farptr_t'
+In file included from c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:39,
+                 from ../Control_ECU.c:21:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay_basic.h:65: error: expected ')' before '__count'
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay_basic.h:66: error: expected ')' before '__count'
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay_basic.h:81: error: expected ')' before '__count'
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay_basic.h:103: error: expected ')' before '__count'
+In file included from ../Control_ECU.c:21:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:79: error: storage class specified for parameter '_delay_us'
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:80: error: storage class specified for parameter '_delay_ms'
+In file included from ../Control_ECU.c:21:
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:90:3: warning: #warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:111: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+c:/winavr-20100110/lib/gcc/../../avr/include/util/delay.h:149: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+../Control_ECU.c:32: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+../Control_ECU.c:35: error: old-style parameter declarations in prototyped function definition
+../Control_ECU.c:34: error: expected '{' at end of input
+make: *** [Control_ECU.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+
+17:15:43 Build Failed. 54 errors, 3 warnings. (took 486ms)
+

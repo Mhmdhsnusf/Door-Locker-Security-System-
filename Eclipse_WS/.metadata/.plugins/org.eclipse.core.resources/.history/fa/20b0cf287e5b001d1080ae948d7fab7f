@@ -1,0 +1,14 @@
+/*
+ * Timer_PWM.h
+ *
+ *  Created on: Oct 7, 2022
+ *      Author: HSNUS
+ */
+#include<avr/io.h>
+#include "common_macros.h"
+#include "std_types.h"
+#include "gpio.h"
+void PWM_Timer0_Init(uint8 duty_cycle);
+void PWM_Timer0_De_init();
+
+

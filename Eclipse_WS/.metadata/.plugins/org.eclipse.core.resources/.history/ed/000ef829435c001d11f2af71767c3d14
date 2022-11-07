@@ -1,0 +1,118 @@
+/******************************************************************************
+ *
+ * Module: AVR timers driver
+ *
+ * File Name: avr_timers.c
+ *
+ * Description: Source file for the timers AVR driver
+ *
+ * Author: Mohamed Hassan
+ *
+ *******************************************************************************/
+#include "Timer1_driver.h"
+#include <avr/interrupt.h> /* For Timer1 ISR */
+#include "common_macros.h" /* To use the macros like SET_BIT */
+#include<avr/io.h> /* To use Timer1 Registers */
+
+/*******************************************************************************
+ *                       Interrupt Service Routines                            *
+ *******************************************************************************/
+
+/*******************************************************************************
+ *                           Global Variables                                  *
+ *******************************************************************************/
+
+/* Global variables to hold the address of the call back function in the application */
+static volatile void (*g_callBackPtr)(void) = NULL_PTR;
+
+ISR(TIMER1_COMPA_vect)
+{
+	if(g_callBackPtr != NULL_PTR)
+	{
+		/* Call the Call Back function in the application  */
+		g_callBackPtr();
+	}
+}
+
+ISR(TIMER1_OVF_vect)
+{
+	if(g_callBackPtr != NULL_PTR)
+	{
+		/* Call the Call Back function in the application  */
+		g_callBackPtr();
+	}
+}
+/*******************************************************************************
+ *                      Functions Definitions                                 *
+ *******************************************************************************/
+
+/*
+ * Description : Function to initialize the Timer1 driver
+ */
+void Timer1_init(const Timer1_ConfigType * Config_Ptr)
+{
+	/* Timer1 operates in non PWM Mode */
+	TCCR1A|=(1<<FOC1A)|(1<<FOC1B);
+	/* Set to required mode */
+	TCCR1B = (TCCR1B&0xF7)|(Config_Ptr->mode <<3);
+	/*
+	 * insert the required clock value in the first three bits (CS10, CS11 and CS12)
+	 * of TCCR1B Register
+	 */
+	TCCR1B = (TCCR1B&0xF8)|(Config_Ptr->prescaler & 0x07);
+	/* Initial Value for Timer1 */
+	TCNT1=Config_Ptr->initial_value;
+	if((Config_Ptr->mode)==Overflow_Mode)
+	{
+		/* configure the timer
+		 * 1. Non PWM mode FOC1A=1 & FOC1B=1
+		 * 2. Normal Mode  WGM11=0 & WGM10=0 & WGM12=0 & WGM13=0
+		 * 3. Normal Mode COM1A0=0 & COM1A1=0
+		 * 4. Normal Mode COM1B0=0 & COM1B1=0
+		 */
+
+		/*Timer1 Overflow Interrupt Enable*/
+		TIMSK|=(1<<TOIE1);
+
+	}
+
+
+	else if((Config_Ptr->mode)==Compare_Mode)
+	{
+		/* configure the timer
+		 * 1. Non PWM mode FOC1A=1 & FOC1B=1
+		 * 2. Compare Mode WGM11=0 & WGM10=0 & WGM12=1 & WGM13=0
+		 * 3. Normal Mode COM1A0=0 & COM1A1=0
+		 * 4. Normal Mode COM1B0=0 & COM1B1=0
+		 */
+
+
+		/* Timer1 operates in CTC Mode */
+		TCCR1B|=(1<<WGM12);
+
+
+		/*Output Compare Register contain a 16-bit value that is continuously compared with the
+	      counter value (TCNT1)*/
+
+		OCR1A=Config_Ptr->compare_value;
+
+		/*Timer1 Compare Mode Interrupt Enable*/
+		TIMSK|=(1<<OCIE1A);
+	}
+}
+/* Function to de-initialize timer1*/
+void Timer1_deInit(void)
+{
+	/*Clear all the registers values and disable interrupts' enable*/
+	TCCR1A=0;
+	TCCR1B=0;
+	TCNT1=0;
+	OCR1A=0;
+	TIMSK&=0xC3;
+
+}
+void Timer1_setCallBack(void(*a_ptr)(void))
+{
+	/* Save the address of the Call back function in a global variable */
+	g_callBackPtr=a_ptr;
+}

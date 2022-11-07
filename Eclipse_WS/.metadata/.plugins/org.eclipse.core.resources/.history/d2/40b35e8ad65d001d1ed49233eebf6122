@@ -1,0 +1,18 @@
+/******************************************************************************
+ *
+ * Module: Timer0 PWM Mode
+ *
+ * File Name: timer0_pwm.h
+ *
+ * Description: Header file for the timer0 PWM mode driver
+ *
+ * Author: Mohamed Hassan
+ *
+ *******************************************************************************/
+#include<avr/io.h>
+#include "common_macros.h"
+#include "std_types.h"
+#include "gpio.h"
+void PWM_Timer0_Init(uint8 duty_cycle);
+
+

@@ -1,0 +1,91 @@
+ /******************************************************************************
+ *
+ * Module: HMI_ECU (Human Machine Interface))
+ *
+ * File Name: hmi_ecu.h
+ *
+ * Description: Header file for the HMI_ECU Driver
+ *
+ * Author: Mohamed Hassan
+ *
+ *******************************************************************************/
+#ifndef HMI_ECU_H_
+#define HMI_ECU_H_
+
+#include "std_types.h"
+/*******************************************************************************
+ *                                Definitions                                  *
+ *******************************************************************************/
+#define PASSWORD_SIZE 5
+#define MATCHED 0x01
+#define UN_MATCHED 0x00
+#define DUMMY_BYTE 0xFF
+/*******************************************************************************
+ *                      Functions Prototypes                                 *
+ *******************************************************************************/
+/*
+ * Description :
+ * Functional responsible for :
+ * 1. Displaying enter/re-enter password on LCD
+ * 2. Call create_Password function to take & store password from user
+ */
+void start_Function(void);
+/*
+ * Description :
+ * Functional responsible for :
+ * 1. Taking password entered by the user
+ * 2. Storing it in the array passed to it
+ */
+void create_Password();
+/*
+ * Description :
+ * Functional responsible for :
+ * 1. Receiving the result of the two passwords entered by the user (Matched/Not matched)
+ * 2. Return the result
+ */
+uint8 check_Password();
+/*
+ * Description :
+ * Functional responsible for :
+ * Sending Password entered by the user to Control_ECU through UART
+ */
+void send_Password();
+void Change_password();
+/*
+ * Description :
+ * Functional responsible for :
+ * 1. Displaying the application main options in LCD (Open Door/Change pass)
+ * 2. Get the user choice
+ * 3. Asking the user for entering his old password
+ * 4. Call create_Password function to get and store password entered by the user
+ * 5. Send the password entered by the user to Control_ECU to check if it's the correct passwored
+ *    compared with the one saved in the EEPROM
+ * 6. Return the user choice
+ */
+uint8 main_Options(void);
+/*
+ * Description :
+ * Functional responsible for :
+ * Syncing the UART in the Control_ECU and the UART in HMI_ECU
+ * Receiving data from the UART in the Control_ECU
+ */
+uint8 recieveByte(void);
+/*
+ * Description :
+ * Functional responsible for :
+ * Syncing the UART in the Control_ECU and the UART in HMI_ECU
+ * Sending data to the UART in the Control_ECU
+ */
+void sendByte(uint8 byte);
+/*
+ * Description :
+ * Function called when by the ISR when the overflow interrupt take place
+ */
+void lcd_Motor_Disply(void);
+/*
+ * Description :
+ * Function called when by the ISR when the overflow interrupt take place
+ */
+void lcd_Buzzer_Disply(void);
+
+#endif

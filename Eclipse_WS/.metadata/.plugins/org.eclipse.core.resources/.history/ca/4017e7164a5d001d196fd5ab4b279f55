@@ -1,0 +1,26 @@
+/*
+ * motor.h
+ *
+ *  Created on: Oct 7, 2022
+ *      Author: HSNUS
+ */
+
+#ifndef MOTOR_H_
+#define MOTOR_H_
+#include "std_types.h"
+#include "gpio.h"
+#include"std_types.h"
+#define DcMotor_IN1_PORT_ID		PORTC_ID
+#define DcMotor_IN1_Pin_ID		PIN2_ID
+#define DcMotor_IN2_PORT_ID		PORTC_ID
+#define DcMotor_IN2_Pin_ID		PIN3_ID
+#define DcMotor_EN1_PORT_ID		PORTC_ID
+#define DcMotor_EN1_Pin_ID		PIN4_ID
+typedef enum {
+	STOP,CW,A_CW
+}DcMotor_State;
+void DcMotor_Init(void);
+void DcMotor_Rotate(DcMotor_State state,uint8 speed);
+
+
+#endif /* MOTOR_H_ */

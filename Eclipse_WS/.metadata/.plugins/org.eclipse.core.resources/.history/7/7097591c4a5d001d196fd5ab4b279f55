@@ -1,0 +1,34 @@
+/*
+ * motor.c
+ *
+ *  Created on: Oct 7, 2022
+ *      Author: HSNUS
+ */
+#include "motor.h"
+
+#include "timer0_pwm.h" // Can be operated using PWM or SPI that's why I included this in .c file
+void DcMotor_Init(void){
+	GPIO_setupPinDirection(DcMotor_IN1_PORT_ID, DcMotor_IN1_Pin_ID, PIN_OUTPUT);
+	GPIO_setupPinDirection(DcMotor_IN2_PORT_ID, DcMotor_IN2_Pin_ID, PIN_OUTPUT);
+	GPIO_writePin(DcMotor_IN2_PORT_ID, DcMotor_IN2_Pin_ID, LOGIC_LOW);
+	GPIO_writePin(DcMotor_IN1_PORT_ID, DcMotor_IN1_Pin_ID, LOGIC_LOW);
+}
+void DcMotor_Rotate(DcMotor_State state,uint8 speed)
+{
+	switch(state)
+		{
+		case CW:
+			GPIO_writePin(DcMotor_IN2_PORT_ID, DcMotor_IN2_Pin_ID, LOGIC_LOW);
+			GPIO_writePin(DcMotor_IN1_PORT_ID, DcMotor_IN1_Pin_ID, LOGIC_HIGH);
+			break;
+		case A_CW:
+			GPIO_writePin(DcMotor_IN1_PORT_ID, DcMotor_IN1_Pin_ID, LOGIC_LOW);
+			GPIO_writePin(DcMotor_IN2_PORT_ID, DcMotor_IN2_Pin_ID, LOGIC_HIGH);
+			break;
+		case STOP:
+			GPIO_writePin(DcMotor_IN2_PORT_ID, DcMotor_IN2_Pin_ID, LOGIC_LOW);
+			GPIO_writePin(DcMotor_IN1_PORT_ID, DcMotor_IN1_Pin_ID, LOGIC_LOW);
+			break;
+		}
+	PWM_Timer0_Init(speed);
+}
